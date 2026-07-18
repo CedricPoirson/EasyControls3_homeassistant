@@ -71,6 +71,9 @@ class EasyControls3Instance:
                     self._isAvailable = False
 
     def _parseData(self, data):
+        
+            LOGGER.warning("HELIO DATA LENGTH: %s", len(data))
+    LOGGER.warning("HELIO DATA: %s", list(data))
         # device info
         self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]
         self._deviceType = deviceInfo["device_type_data"][data[16 * 2 + 1]]
@@ -110,6 +113,12 @@ class EasyControls3Instance:
         self._SupplyTemperature = dataToCelsius(data, 69)
         self._IndoorTemperature = dataToCelsius(data, 65)
         self._ExhaustTemperature = dataToCelsius(data, 66)
+
+        # heat exchanger state
+        # 0 = WRG (heat recovery)
+        # 1 = KRG (cooling recovery)
+        # 2 = Bypass
+        self._CellState = data[4616 * 2 + 1]
 
         # humidity
         self._AirRH = data[74 * 2 + 1]
@@ -392,3 +401,7 @@ class EasyControls3Instance:
     @property
     def CO2Value(self):
         return self._CO2Value
+
+    @property
+    def CellState(self):
+        return self._CellState

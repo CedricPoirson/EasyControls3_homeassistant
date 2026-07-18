@@ -150,6 +150,20 @@ class EasyControls3Instance:
             data[509],
         )
 
+        # Heat exchanger state
+        # 0 = Heat recovery
+        # 1 = Cooling recovery
+        # 2 = Bypass
+
+        if data[229] == 1 and data[507] == 1:
+            self._CellState = KWLState.Bypass
+
+        elif data[229] == 1 and data[509] == 0:
+            self._CellState = KWLState.CoolingRecovery
+
+        else:
+            self._CellState = KWLState.HeatRecovery
+
         # humidity
         self._AirRH = data[74 * 2 + 1]
 

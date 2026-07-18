@@ -1,11 +1,14 @@
 {
-  "codeowners": ["@frawe"],
-  "config_flow": true,
-  "dependencies": [],
-  "documentation": "https://github.com/frawe/EasyControls3_homeassistant",
   "domain": "EasyControls3_homeassistant",
-  "iot_class": "local_polling",
   "name": "easyControls 3.0 homeassistant adapter",
-  "requirements": ["websockets>=13.1"],
-  "version": "1.4.0"
+  "version": "1.5.0",
+  "documentation": "https://github.com/CedricPoirson/EasyControls3_homeassistant",
+  "requirements": [],
+  "dependencies": [],
+  "codeowners": [
+    "@CedricPoirson"
+  ],
+  "config_flow": true,
+  "iot_class": "local_push"
+  "frontend": true
 }

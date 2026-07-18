@@ -6,6 +6,9 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import Platform
 from homeassistant.core import HomeAssistant
 
+from homeassistant.components import frontend
+from pathlib import Path
+
 from . import EasyControls3Instance
 from .const import DOMAIN
 
@@ -28,3 +31,24 @@ async def async_unload_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
+
+
+
+async def async_setup(hass, config):
+
+    card_path = Path(
+        hass.config.path(
+            "custom_components",
+            "EasyControls3_homeassistant",
+            "www",
+            "ventilation-card.js",
+        )
+    )
+
+    if card_path.exists():
+        frontend.add_extra_js_url(
+            hass,
+            "/local/ventilation-card.js",
+        )
+
+    return True

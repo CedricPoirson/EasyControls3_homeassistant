@@ -84,11 +84,10 @@ class EasyControls3Instance:
         LOGGER.warning("TEMPERATURE SEARCH")
         for i in range(len(data) - 1):
             raw = data[i] * 256 + data[i + 1]
+            temp = raw / 100 - 273.15
 
-            # Kelvin x10 environ
-            temp = raw / 10 - 273.15
             if -30 < temp < 60:
-                LOGGER.warning("BYTE %s/%s raw=%s temp=%.1f", i, i + 1, raw, temp)
+                LOGGER.warning("BYTE %s/%s raw=%s temp=%.2f", i, i + 1, raw, temp)
 
         # device info
         self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]

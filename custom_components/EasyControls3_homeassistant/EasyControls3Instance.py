@@ -135,9 +135,8 @@ class EasyControls3Instance:
         # 2 = bypass
         # 3 = defrost
 
-        self._CellState = data[655]
-
-        LOGGER.warning("CELL STATE = %s", self._CellState)
+        # recherche des changements possibles bypass
+        LOGGER.warning("CELL AREA: %s", list(data[600:750]))
 
         # humidity
         self._AirRH = data[74 * 2 + 1]

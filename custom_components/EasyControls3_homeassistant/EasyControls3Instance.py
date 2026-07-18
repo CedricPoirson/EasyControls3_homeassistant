@@ -41,6 +41,8 @@ class EasyControls3Instance:
         self._offlineAfter = datetime.timedelta(minutes=10)
         self._isOn = True
         self._CO2Value = None
+        self._CellState = None
+        self._CellStateRaw = {}
 
     async def _exchangeData(self, request):
         async with self._lock, connect(self._url) as websocket:
@@ -71,6 +73,8 @@ class EasyControls3Instance:
                     self._isAvailable = False
 
     def _parseData(self, data):
+
+
         # device info
         self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]
         self._deviceType = deviceInfo["device_type_data"][data[16 * 2 + 1]]
@@ -110,6 +114,41 @@ class EasyControls3Instance:
         self._SupplyTemperature = dataToCelsius(data, 69)
         self._IndoorTemperature = dataToCelsius(data, 65)
         self._ExhaustTemperature = dataToCelsius(data, 66)
+
+        # heat exchanger state
+        # 0 = heat recovery
+        # 1 = cooling recovery
+        # 2 = bypass
+
+        if data[229] == 1 and data[507] == 1:
+            self._CellState = 2  # bypass
+        elif data[229] == 1 and data[509] == 0:
+            self._CellState = 1  # cooling recovery
+        else:
+            self._CellState = 0  # heat recovery
+
+
+
+        # Heat exchanger state
+        # 0 = heat recovery
+        # 1 = cooling recovery
+        # 2 = bypass
+
+        if data[229] == 1 and data[507] == 1:
+            self._CellState = 2
+
+        elif data[229] == 1 and data[509] == 0:
+            self._CellState = 1
+
+        else:
+            self._CellState = 0
+
+            self._CellStateRaw = {
+                "157": data[157],
+                "229": data[229],
+                "507": data[507],
+                "509": data[509],
+        }
 
         # humidity
         self._AirRH = data[74 * 2 + 1]
@@ -392,3 +431,11 @@ class EasyControls3Instance:
     @property
     def CO2Value(self):
         return self._CO2Value
+
+    @property
+    def CellState(self):
+        return self._CellState
+
+    @property
+    def CellStateRaw(self):
+        return self._CellStateRaw

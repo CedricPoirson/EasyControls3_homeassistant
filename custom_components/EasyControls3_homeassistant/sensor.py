@@ -34,6 +34,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     new_devices.append(CurrentFanSpeed(easyConnector))
     new_devices.append(FilterChanged(easyConnector))
     new_devices.append(FilterDue(easyConnector))
+    new_devices.append(HeatExchangerStateSensor(easyConnector))
 
     if easyConnector.CO2Value != 0xFFFF:  # only add CO2 sensor if it is available
         new_devices.append(CO2Sensor(easyConnector))
@@ -307,3 +308,41 @@ class FilterDue(SensorBase):
     async def async_update(self):
         await self._easyConnector.readCurrentData()
         self.native_value = self._easyConnector.filterDue
+
+
+class HeatExchangerStateSensor(SensorBase):
+
+    def __init__(self, easyConnector):
+        """Initialize the sensor."""
+        super().__init__(easyConnector)
+
+        self._attr_unique_id = f"{self._easyConnector.serialNR}_HeatExchangerState"
+        self._attr_name = f"{self._easyConnector.deviceModel} Heat Exchanger State"
+
+    @property
+    def state(self):
+        """Return the heat exchanger state."""
+        if self._easyConnector.CellState == 0:
+            return "Heat recovery"
+        elif self._easyConnector.CellState == 1:
+            return "Cooling recovery"
+        elif self._easyConnector.CellState == 2:
+            return "Bypass"
+        else:
+            return f"Unknown ({self._easyConnector.CellState})"
+
+    @property
+    def icon(self):
+        if self._easyConnector.CellState == 2:
+            return "mdi:weather-night"       # Bypass
+        elif self._easyConnector.CellState == 1:
+            return "mdi:snowflake"           # Cooling recovery
+        else:
+            return "mdi:heat-wave"           # Heat recovery
+
+    @property
+    def extra_state_attributes(self):
+        return self._easyConnector.CellStateRaw
+
+    async def async_update(self):
+        await self._easyConnector.readCurrentData()

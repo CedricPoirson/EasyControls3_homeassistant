@@ -24,7 +24,11 @@ class VentilationCard extends HTMLElement {
   getValue(entityId, fallback = "--") {
     const entity = this.getEntity(entityId);
 
-    if (!entity || entity.state === "unknown" || entity.state === "unavailable") {
+    if (
+      !entity ||
+      entity.state === "unknown" ||
+      entity.state === "unavailable"
+    ) {
       return fallback;
     }
 
@@ -51,30 +55,12 @@ class VentilationCard extends HTMLElement {
     const efficiency = this.getValue(this.config.efficiency_entity);
     const fan = this.getValue(this.config.fan_entity);
 
-    const outsideUnit = this.getUnit(
-      this.config.outside_temperature,
-      "°C"
-    );
-    const supplyUnit = this.getUnit(
-      this.config.supply_temperature,
-      "°C"
-    );
-    const extractUnit = this.getUnit(
-      this.config.extract_temperature,
-      "°C"
-    );
-    const exhaustUnit = this.getUnit(
-      this.config.exhaust_temperature,
-      "°C"
-    );
-    const efficiencyUnit = this.getUnit(
-      this.config.efficiency_entity,
-      "%"
-    );
-    const fanUnit = this.getUnit(
-      this.config.fan_entity,
-      "%"
-    );
+    const outsideUnit = this.getUnit(this.config.outside_temperature, "°C");
+    const supplyUnit = this.getUnit(this.config.supply_temperature, "°C");
+    const extractUnit = this.getUnit(this.config.extract_temperature, "°C");
+    const exhaustUnit = this.getUnit(this.config.exhaust_temperature, "°C");
+    const efficiencyUnit = this.getUnit(this.config.efficiency_entity, "%");
+    const fanUnit = this.getUnit(this.config.fan_entity, "%");
 
     let modeColor = "var(--secondary-text-color)";
     let modeIcon = "mdi:swap-vertical";
@@ -263,5 +249,5 @@ if (!customElements.get("ventilation-card")) {
 console.info(
   "%c Ventilation Card %c v0.1.0 ",
   "color: white; background: #03a9f4; font-weight: 700;",
-  "color: #03a9f4; background: white; font-weight: 700;"
+  "color: #03a9f4; background: white; font-weight: 700;",
 );

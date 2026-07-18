@@ -43,6 +43,7 @@ class EasyControls3Instance:
         self._CO2Value = None
         self._CellState = None
         self._CellStateRaw = {}
+        self._HeatExchangerEfficiency = None
 
     async def _exchangeData(self, request):
         async with self._lock, connect(self._url) as websocket:
@@ -114,6 +115,26 @@ class EasyControls3Instance:
         self._SupplyTemperature = dataToCelsius(data, 69)
         self._IndoorTemperature = dataToCelsius(data, 65)
         self._ExhaustTemperature = dataToCelsius(data, 66)
+
+        # Heat exchanger efficiency calculation
+# η = (Supply - Outside) / (Exhaust - Outside)
+
+        try:
+            delta_in = self._ExhaustTemperature - self._OutsideTemperature
+            delta_out = self._SupplyTemperature - self._OutsideTemperature
+
+            if delta_in > 0:
+                efficiency = (delta_out / delta_in) * 100
+
+                # limit unrealistic values
+                self._HeatExchangerEfficiency = round(
+                    max(0, min(efficiency, 100)), 1
+                )
+            else:
+                self._HeatExchangerEfficiency = None
+
+        except Exception:
+            self._HeatExchangerEfficiency = None
 
         # heat exchanger state
         # 0 = heat recovery
@@ -439,3 +460,11 @@ class EasyControls3Instance:
     @property
     def CellStateRaw(self):
         return self._CellStateRaw
+
+    @property
+    def CellState(self):
+        return self._CellState
+
+    @property
+    def HeatExchangerEfficiency(self):
+        return self._HeatExchangerEfficiency

@@ -156,11 +156,6 @@ class EasyControls3Instance:
         except Exception:
             self._HeatExchangerEfficiency = None
 
-        # Heat exchanger state
-        # 0 = heat recovery
-        # 1 = cooling recovery
-        # 2 = bypass
-
         if data[229] == 1 and data[507] == 1:
             self._CellState = 2
 
@@ -170,12 +165,12 @@ class EasyControls3Instance:
         else:
             self._CellState = 0
 
-            self._CellStateRaw = {
-                "157": data[157],
-                "229": data[229],
-                "507": data[507],
-                "509": data[509],
-            }
+        self._CellStateRaw = {
+            "157": data[157],
+            "229": data[229],
+            "507": data[507],
+            "509": data[509],
+        }
 
         # humidity
         self._AirRH = data[74 * 2 + 1]

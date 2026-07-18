@@ -76,14 +76,14 @@ class EasyControls3Instance:
             LOGGER.warning("HELIO DATA LENGTH: %s", len(data))
             LOGGER.warning("HELIO DATA: %s", list(data))
 
-        # device info
-        self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]
-        self._deviceType = deviceInfo["device_type_data"][data[16 * 2 + 1]]
-        self._SerialNR = (
-            data[14 * 2] * 16777216
-            + data[14 * 2 + 1] * 65536
-            + data[15 * 2] * 256
-            + data[15 * 2 + 1]
+            # device info
+            self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]
+            self._deviceType = deviceInfo["device_type_data"][data[16 * 2 + 1]]
+            self._SerialNR = (
+                data[14 * 2] * 16777216
+                + data[14 * 2 + 1] * 65536
+                + data[15 * 2] * 256
+                + data[15 * 2 + 1]
         )
 
         # state

@@ -41,6 +41,7 @@ class EasyControls3Instance:
         self._offlineAfter = datetime.timedelta(minutes=10)
         self._isOn = True
         self._CO2Value = None
+        self._CellState = None
 
     async def _exchangeData(self, request):
         async with self._lock, connect(self._url) as websocket:
@@ -70,10 +71,11 @@ class EasyControls3Instance:
                 if datetime.datetime.now() - self._lastUpdate > self._offlineAfter:
                     self._isAvailable = False
 
-    def _parseData(self, data):
+ def _parseData(self, data):
         
-            LOGGER.warning("HELIO DATA LENGTH: %s", len(data))
+ LOGGER.warning("HELIO DATA LENGTH: %s", len(data))
     LOGGER.warning("HELIO DATA: %s", list(data))
+
         # device info
         self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]
         self._deviceType = deviceInfo["device_type_data"][data[16 * 2 + 1]]
@@ -114,11 +116,7 @@ class EasyControls3Instance:
         self._IndoorTemperature = dataToCelsius(data, 65)
         self._ExhaustTemperature = dataToCelsius(data, 66)
 
-        # heat exchanger state
-        # 0 = WRG (heat recovery)
-        # 1 = KRG (cooling recovery)
-        # 2 = Bypass
-        self._CellState = data[4616 * 2 + 1]
+     
 
         # humidity
         self._AirRH = data[74 * 2 + 1]

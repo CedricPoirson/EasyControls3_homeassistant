@@ -361,5 +361,20 @@ class HeatExchangerEfficiencySensor(SensorBase):
     def state(self):
         return self._easyConnector.HeatExchangerEfficiency
 
+    @property
+    def extra_state_attributes(self):
+        modes = {
+            0: "Heat recovery",
+            1: "Cooling recovery",
+            2: "Bypass",
+        }
+
+        return {
+            "mode": modes.get(self._easyConnector.CellState, "Unknown"),
+            "outside_temperature": self._easyConnector.OutsideTemperature,
+            "supply_temperature": self._easyConnector.SupplyTemperature,
+            "exhaust_temperature": self._easyConnector.ExhaustTemperature,
+        }
+
     async def async_update(self):
         await self._easyConnector.readCurrentData()

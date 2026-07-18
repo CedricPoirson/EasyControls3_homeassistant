@@ -329,7 +329,7 @@ class HeatExchangerStateSensor(SensorBase):
         elif self._easyConnector.CellState == 2:
             return "Bypass"
         else:
-            return "Unknown"
+            return f"Unknown ({self._easyConnector.CellState})"
 
     @property
     def icon(self):

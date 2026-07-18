@@ -142,7 +142,12 @@ class EasyControls3Instance:
 
                 elif self._CellState == 1:
                     # Cooling recovery efficiency
-                    efficiency = (outside - supply) / (outside - exhaust) * 100
+                    indoor = self._IndoorTemperature
+
+                    if indoor is not None and outside > indoor:
+                        efficiency = (outside - supply) / (outside - indoor) * 100
+                    else:
+                        efficiency = None
 
                 else:
                     # Bypass

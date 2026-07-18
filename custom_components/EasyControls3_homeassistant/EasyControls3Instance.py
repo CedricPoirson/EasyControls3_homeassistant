@@ -115,24 +115,6 @@ class EasyControls3Instance:
         self._IndoorTemperature = dataToCelsius(data, 65)
         self._ExhaustTemperature = dataToCelsius(data, 66)
 
-        # Heat exchanger efficiency calculation
-        # η = (Supply - Outside) / (Exhaust - Outside)
-
-        try:
-            delta_in = self._ExhaustTemperature - self._OutsideTemperature
-            delta_out = self._SupplyTemperature - self._OutsideTemperature
-
-            if delta_in > 0:
-                efficiency = (delta_out / delta_in) * 100
-
-                # limit unrealistic values
-                self._HeatExchangerEfficiency = round(max(0, min(efficiency, 100)), 1)
-            else:
-                self._HeatExchangerEfficiency = None
-
-        except Exception:
-            self._HeatExchangerEfficiency = None
-
         # heat exchanger state
         # 0 = heat recovery
         # 1 = cooling recovery
@@ -144,6 +126,35 @@ class EasyControls3Instance:
             self._CellState = 1  # cooling recovery
         else:
             self._CellState = 0  # heat recovery
+
+        # Heat exchanger efficiency calculation
+
+        try:
+            outside = self._OutsideTemperature
+            supply = self._SupplyTemperature
+            exhaust = self._ExhaustTemperature
+
+            if outside is not None and supply is not None and exhaust is not None:
+
+                if self._CellState == 0:
+                    # Heat recovery efficiency
+                    efficiency = (supply - outside) / (exhaust - outside) * 100
+
+                elif self._CellState == 1:
+                    # Cooling recovery efficiency
+                    efficiency = (outside - supply) / (outside - exhaust) * 100
+
+                else:
+                    # Bypass
+                    efficiency = 0
+
+                self._HeatExchangerEfficiency = round(max(0, min(efficiency, 100)), 1)
+
+            else:
+                self._HeatExchangerEfficiency = None
+
+        except Exception:
+            self._HeatExchangerEfficiency = None
 
         # Heat exchanger state
         # 0 = heat recovery
@@ -455,10 +466,6 @@ class EasyControls3Instance:
     @property
     def CellStateRaw(self):
         return self._CellStateRaw
-
-    @property
-    def CellState(self):
-        return self._CellState
 
     @property
     def HeatExchangerEfficiency(self):

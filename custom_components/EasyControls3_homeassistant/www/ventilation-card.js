@@ -333,7 +333,12 @@ ${extract}°
 <div class="exchange ${mode === "Bypass" ? "bypass" : ""}">
 
 
-<img src="/easycontrols3/images/heat-exchanger.png">
+<img 
+  src="/easycontrols3/images/heat-exchanger.png"
+  style="width:170px;"
+  onload="console.log('Heat exchanger image loaded')"
+  onerror="console.error('Heat exchanger image FAILED')"
+>
 
 
 </div>

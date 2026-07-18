@@ -35,6 +35,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     new_devices.append(FilterChanged(easyConnector))
     new_devices.append(FilterDue(easyConnector))
     new_devices.append(HeatExchangerStateSensor(easyConnector))
+    new_devices.append(HeatExchangerEfficiencySensor(easyConnector))
 
     if easyConnector.CO2Value != 0xFFFF:  # only add CO2 sensor if it is available
         new_devices.append(CO2Sensor(easyConnector))
@@ -334,15 +335,31 @@ class HeatExchangerStateSensor(SensorBase):
     @property
     def icon(self):
         if self._easyConnector.CellState == 2:
-            return "mdi:weather-night"       # Bypass
+            return "mdi:weather-night"  # Bypass
         elif self._easyConnector.CellState == 1:
-            return "mdi:snowflake"           # Cooling recovery
+            return "mdi:snowflake"  # Cooling recovery
         else:
-            return "mdi:heat-wave"           # Heat recovery
+            return "mdi:heat-wave"  # Heat recovery
 
     @property
     def extra_state_attributes(self):
         return self._easyConnector.CellStateRaw
+
+
+class HeatExchangerEfficiencySensor(SensorBase):
+
+    def __init__(self, easyConnector):
+        super().__init__(easyConnector)
+
+        self._attr_unique_id = f"{self._easyConnector.serialNR}_HeatExchangerEfficiency"
+
+        self._attr_name = f"{self._easyConnector.deviceModel} Heat Exchanger Efficiency"
+
+        self._attr_native_unit_of_measurement = "%"
+
+    @property
+    def state(self):
+        return self._easyConnector.HeatExchangerEfficiency
 
     async def async_update(self):
         await self._easyConnector.readCurrentData()

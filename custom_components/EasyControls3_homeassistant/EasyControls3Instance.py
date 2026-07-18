@@ -75,7 +75,6 @@ class EasyControls3Instance:
 
     def _parseData(self, data):
 
-
         # device info
         self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]
         self._deviceType = deviceInfo["device_type_data"][data[16 * 2 + 1]]
@@ -117,7 +116,7 @@ class EasyControls3Instance:
         self._ExhaustTemperature = dataToCelsius(data, 66)
 
         # Heat exchanger efficiency calculation
-# η = (Supply - Outside) / (Exhaust - Outside)
+        # η = (Supply - Outside) / (Exhaust - Outside)
 
         try:
             delta_in = self._ExhaustTemperature - self._OutsideTemperature
@@ -127,9 +126,7 @@ class EasyControls3Instance:
                 efficiency = (delta_out / delta_in) * 100
 
                 # limit unrealistic values
-                self._HeatExchangerEfficiency = round(
-                    max(0, min(efficiency, 100)), 1
-                )
+                self._HeatExchangerEfficiency = round(max(0, min(efficiency, 100)), 1)
             else:
                 self._HeatExchangerEfficiency = None
 
@@ -147,8 +144,6 @@ class EasyControls3Instance:
             self._CellState = 1  # cooling recovery
         else:
             self._CellState = 0  # heat recovery
-
-
 
         # Heat exchanger state
         # 0 = heat recovery
@@ -169,7 +164,7 @@ class EasyControls3Instance:
                 "229": data[229],
                 "507": data[507],
                 "509": data[509],
-        }
+            }
 
         # humidity
         self._AirRH = data[74 * 2 + 1]

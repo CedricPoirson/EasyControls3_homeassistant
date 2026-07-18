@@ -34,8 +34,7 @@ async def async_setup_entry(hass, config_entry, async_add_entities):
     new_devices.append(CurrentFanSpeed(easyConnector))
     new_devices.append(FilterChanged(easyConnector))
     new_devices.append(FilterDue(easyConnector))
-    new_devices.append(ExhaustTemperatureSensor(easyConnector))
-    new_devices.append(CurrentFanSpeed(easyConnector))
+    new_devices.append(HeatExchangerStateSensor(easyConnector))
 
     if easyConnector.CO2Value != 0xFFFF:  # only add CO2 sensor if it is available
         new_devices.append(CO2Sensor(easyConnector))

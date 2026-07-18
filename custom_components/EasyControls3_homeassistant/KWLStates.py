@@ -6,6 +6,3 @@ class KWLState(Enum):
     Away = 2
     Intensive = 3
     Individual = 4
-    HeatRecovery = "Heat recovery"
-    CoolingRecovery = "Cooling recovery"
-    Bypass = "Bypass"

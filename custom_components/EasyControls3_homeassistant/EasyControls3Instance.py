@@ -137,8 +137,12 @@ class EasyControls3Instance:
             if outside is not None and supply is not None and exhaust is not None:
 
                 if self._CellState == 0:
-                    # Heat recovery efficiency
-                    efficiency = (supply - outside) / (exhaust - outside) * 100
+                    delta = exhaust - outside
+
+                    if abs(delta) < 3:
+                        efficiency = None
+                    else:
+                        efficiency = (supply - outside) / delta * 100
 
                 elif self._CellState == 1:
                     # Cooling recovery efficiency
@@ -151,9 +155,15 @@ class EasyControls3Instance:
 
                 else:
                     # Bypass
-                    efficiency = 0
+                    efficiency = None
 
-                self._HeatExchangerEfficiency = round(max(0, min(efficiency, 100)), 1)
+                if efficiency is not None:
+                    self._HeatExchangerEfficiency = round(
+                        max(0, min(efficiency, 100)), 1
+                    )
+                else:
+                    self._HeatExchangerEfficiency = None
+
                 LOGGER.debug(
                     "HEAT EFF: mode=%s outside=%.1f supply=%.1f exhaust=%.1f eff=%.1f",
                     self._CellState,
@@ -184,6 +194,8 @@ class EasyControls3Instance:
             "507": data[507],
             "509": data[509],
         }
+
+        LOGGER.warning("HELIO BYPASS DEBUG: %s", self._CellStateRaw)
 
         # humidity
         self._AirRH = data[74 * 2 + 1]

@@ -120,10 +120,12 @@ class EasyControls3Instance:
         # 1 = cooling recovery
         # 2 = bypass
 
-        if data[229] == 1 and data[507] == 1:
+        if data[229] == 2:
             self._CellState = 2  # bypass
+
         elif data[229] == 1 and data[509] == 0:
             self._CellState = 1  # cooling recovery
+
         else:
             self._CellState = 0  # heat recovery
 

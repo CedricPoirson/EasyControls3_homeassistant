@@ -137,6 +137,13 @@ class EasyControls3Instance:
 
         # recherche des changements possibles bypass
         LOGGER.warning("CELL AREA: %s", list(data[600:750]))
+        LOGGER.warning(
+            "BYPASS TEST: 157=%s 229=%s 507=%s 509=%s",
+            data[157],
+            data[229],
+            data[507],
+            data[509],
+        )
 
         # humidity
         self._AirRH = data[74 * 2 + 1]

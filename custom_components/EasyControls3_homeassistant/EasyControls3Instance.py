@@ -181,14 +181,6 @@ class EasyControls3Instance:
         except Exception:
             self._HeatExchangerEfficiency = None
 
-        if data[229] == 1 and data[507] == 1:
-            self._CellState = 2
-
-        elif data[229] == 1 and data[509] == 0:
-            self._CellState = 1
-
-        else:
-            self._CellState = 0
 
         self._CellStateRaw = {
             "157": data[157],

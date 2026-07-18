@@ -72,3 +72,9 @@ async def async_unload_entry(
         hass.data[DOMAIN].pop(entry.entry_id)
 
     return unload_ok
+
+    StaticPathConfig(
+    "/easycontrols3/images",
+    str(Path(__file__).parent / "images"),
+    cache_headers=False,
+    )

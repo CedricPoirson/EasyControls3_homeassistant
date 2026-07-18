@@ -64,6 +64,9 @@ The integration uses the serial number of the device to assign unique ids to the
 ### Heat exchanger mode sensor
 <img width="572" height="572" alt="image" src="https://github.com/user-attachments/assets/c1210631-aec1-4f87-bcf0-05972424d563" />
 
+<img width="1346" height="1155" alt="image" src="https://github.com/user-attachments/assets/dca0560f-197d-4521-8bc7-d63255e4874f" />
+
+
 
 path = "/mnt/data/README_v1.4.0.md"
 pypandoc.convert_text(content, 'md', format='md', outputfile=path, extra_args=['--standalone'])

@@ -42,6 +42,7 @@ class EasyControls3Instance:
         self._isOn = True
         self._CO2Value = None
         self._CellState = None
+        self._CellStateRaw = {}
 
     async def _exchangeData(self, request):
         async with self._lock, connect(self._url) as websocket:
@@ -163,6 +164,13 @@ class EasyControls3Instance:
 
         else:
             self._CellState = 0
+
+            self._CellStateRaw = {
+                "157": data[157],
+                "229": data[229],
+                "507": data[507],
+                "509": data[509],
+        }
 
         # humidity
         self._AirRH = data[74 * 2 + 1]
@@ -449,3 +457,7 @@ class EasyControls3Instance:
     @property
     def CellState(self):
         return self._CellState
+
+    @property
+    def CellStateRaw(self):
+        return self._CellStateRaw

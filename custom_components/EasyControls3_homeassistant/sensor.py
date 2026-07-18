@@ -333,7 +333,16 @@ class HeatExchangerStateSensor(SensorBase):
 
     @property
     def icon(self):
-        return "mdi:air-filter"
+        if self._easyConnector.CellState == 2:
+            return "mdi:weather-night"       # Bypass
+        elif self._easyConnector.CellState == 1:
+            return "mdi:snowflake"           # Cooling recovery
+        else:
+            return "mdi:heat-wave"           # Heat recovery
+
+    @property
+    def extra_state_attributes(self):
+        return self._easyConnector.CellStateRaw
 
     async def async_update(self):
         await self._easyConnector.readCurrentData()

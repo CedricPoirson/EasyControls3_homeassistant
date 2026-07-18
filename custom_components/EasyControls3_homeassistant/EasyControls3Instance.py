@@ -74,21 +74,6 @@ class EasyControls3Instance:
 
     def _parseData(self, data):
 
-        LOGGER.error("HELIO DATA LENGTH: %s", len(data))
-        LOGGER.error("HELIO DATA: %s", list(data))
-        LOGGER.warning("TEMP VALUES:")
-        for i in range(0, len(data), 2):
-            value = data[i] * 256 + data[i + 1]
-            if 25000 < value < 32000:
-                LOGGER.warning("OFFSET %s = %.1f°C", i // 2, value / 100 - 273.15)
-
-        LOGGER.warning("TEMPERATURE SEARCH")
-        for i in range(len(data) - 1):
-            raw = data[i] * 256 + data[i + 1]
-            temp = raw / 100 - 273.15
-
-            if -30 < temp < 60:
-                LOGGER.warning("BYTE %s/%s raw=%s temp=%.2f", i, i + 1, raw, temp)
 
         # device info
         self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]
@@ -142,14 +127,7 @@ class EasyControls3Instance:
         else:
             self._CellState = 0  # heat recovery
 
-        LOGGER.warning(
-            "CELL STATE=%s (157=%s 229=%s 507=%s 509=%s)",
-            self._CellState,
-            data[157],
-            data[229],
-            data[507],
-            data[509],
-        )
+
 
         # Heat exchanger state
         # 0 = heat recovery

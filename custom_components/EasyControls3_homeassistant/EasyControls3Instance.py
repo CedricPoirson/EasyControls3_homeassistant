@@ -71,10 +71,10 @@ class EasyControls3Instance:
                 if datetime.datetime.now() - self._lastUpdate > self._offlineAfter:
                     self._isAvailable = False
 
- def _parseData(self, data):
+        def _parseData(self, data):
         
- LOGGER.warning("HELIO DATA LENGTH: %s", len(data))
-    LOGGER.warning("HELIO DATA: %s", list(data))
+            LOGGER.warning("HELIO DATA LENGTH: %s", len(data))
+            LOGGER.warning("HELIO DATA: %s", list(data))
 
         # device info
         self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]

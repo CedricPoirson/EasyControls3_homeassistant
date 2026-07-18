@@ -133,12 +133,17 @@ class EasyControls3Instance:
         # 0 = heat recovery
         # 1 = cooling recovery
         # 2 = bypass
-        # 3 = defrost
 
-        # recherche des changements possibles bypass
-        LOGGER.warning("CELL AREA: %s", list(data[600:750]))
+        if data[229] == 1 and data[507] == 1:
+            self._CellState = 2  # bypass
+        elif data[229] == 1 and data[509] == 0:
+            self._CellState = 1  # cooling recovery
+        else:
+            self._CellState = 0  # heat recovery
+
         LOGGER.warning(
-            "BYPASS TEST: 157=%s 229=%s 507=%s 509=%s",
+            "CELL STATE=%s (157=%s 229=%s 507=%s 509=%s)",
+            self._CellState,
             data[157],
             data[229],
             data[507],

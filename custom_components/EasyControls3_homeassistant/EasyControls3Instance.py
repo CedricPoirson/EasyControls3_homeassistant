@@ -73,8 +73,8 @@ class EasyControls3Instance:
 
         def _parseData(self, data):
         
-            LOGGER.warning("HELIO DATA LENGTH: %s", len(data))
-            LOGGER.warning("HELIO DATA: %s", list(data))
+            LOGGER.error("HELIO DATA LENGTH: %s", len(data))
+            LOGGER.error("HELIO DATA: %s", list(data))
 
             # device info
             self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]

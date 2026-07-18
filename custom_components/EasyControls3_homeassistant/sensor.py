@@ -309,3 +309,32 @@ class FilterDue(SensorBase):
     async def async_update(self):
         await self._easyConnector.readCurrentData()
         self.native_value = self._easyConnector.filterDue
+
+
+class HeatExchangerStateSensor(SensorBase):
+
+    def __init__(self, easyConnector):
+        """Initialize the sensor."""
+        super().__init__(easyConnector)
+
+        self._attr_unique_id = f"{self._easyConnector.serialNR}_HeatExchangerState"
+        self._attr_name = f"{self._easyConnector.deviceModel} Heat Exchanger State"
+
+    @property
+    def state(self):
+        """Return the heat exchanger state."""
+        if self._easyConnector.CellState == 0:
+            return "Heat recovery"
+        elif self._easyConnector.CellState == 1:
+            return "Cooling recovery"
+        elif self._easyConnector.CellState == 2:
+            return "Bypass"
+        else:
+            return "Unknown"
+
+    @property
+    def icon(self):
+        return "mdi:air-filter"
+
+    async def async_update(self):
+        await self._easyConnector.readCurrentData()

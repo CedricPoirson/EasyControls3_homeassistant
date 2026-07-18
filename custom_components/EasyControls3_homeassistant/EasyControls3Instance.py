@@ -149,6 +149,14 @@ class EasyControls3Instance:
                     efficiency = 0
 
                 self._HeatExchangerEfficiency = round(max(0, min(efficiency, 100)), 1)
+                LOGGER.warning(
+                    "HEAT EFF: mode=%s outside=%.1f supply=%.1f exhaust=%.1f eff=%.1f",
+                    self._CellState,
+                    outside,
+                    supply,
+                    exhaust,
+                    efficiency,
+                )
 
             else:
                 self._HeatExchangerEfficiency = None

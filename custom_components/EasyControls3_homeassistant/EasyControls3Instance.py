@@ -72,19 +72,19 @@ class EasyControls3Instance:
                     self._isAvailable = False
 
     def _parseData(self, data):
-        
-            LOGGER.error("HELIO DATA LENGTH: %s", len(data))
-            LOGGER.error("HELIO DATA: %s", list(data))
 
-            # device info
-            self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]
-            self._deviceType = deviceInfo["device_type_data"][data[16 * 2 + 1]]
-            self._SerialNR = (
-                data[14 * 2] * 16777216
-                + data[14 * 2 + 1] * 65536
-                + data[15 * 2] * 256
-                + data[15 * 2 + 1]
-            )
+        LOGGER.error("HELIO DATA LENGTH: %s", len(data))
+        LOGGER.error("HELIO DATA: %s", list(data))
+
+        # device info
+        self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]
+        self._deviceType = deviceInfo["device_type_data"][data[16 * 2 + 1]]
+        self._SerialNR = (
+            data[14 * 2] * 16777216
+            + data[14 * 2 + 1] * 65536
+            + data[15 * 2] * 256
+            + data[15 * 2 + 1]
+        )
 
         # state
         # current device state - we need A_CYC_STATE (Y), A_CYC_FIREPLACE_TIMER (u), A_CYC_BOOST_TIMER (v)
@@ -115,8 +115,6 @@ class EasyControls3Instance:
         self._SupplyTemperature = dataToCelsius(data, 69)
         self._IndoorTemperature = dataToCelsius(data, 65)
         self._ExhaustTemperature = dataToCelsius(data, 66)
-
-     
 
         # humidity
         self._AirRH = data[74 * 2 + 1]

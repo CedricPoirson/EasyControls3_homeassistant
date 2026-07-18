@@ -129,6 +129,16 @@ class EasyControls3Instance:
         self._IndoorTemperature = dataToCelsius(data, 65)
         self._ExhaustTemperature = dataToCelsius(data, 66)
 
+        # heat exchanger state
+        # 0 = heat recovery
+        # 1 = cooling recovery
+        # 2 = bypass
+        # 3 = defrost
+
+        self._CellState = data[655]
+
+        LOGGER.warning("CELL STATE = %s", self._CellState)
+
         # humidity
         self._AirRH = data[74 * 2 + 1]
 

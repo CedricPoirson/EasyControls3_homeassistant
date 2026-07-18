@@ -84,7 +84,7 @@ class EasyControls3Instance:
                 + data[14 * 2 + 1] * 65536
                 + data[15 * 2] * 256
                 + data[15 * 2 + 1]
-        )
+            )
 
         # state
         # current device state - we need A_CYC_STATE (Y), A_CYC_FIREPLACE_TIMER (u), A_CYC_BOOST_TIMER (v)

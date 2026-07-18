@@ -75,6 +75,11 @@ class EasyControls3Instance:
 
         LOGGER.error("HELIO DATA LENGTH: %s", len(data))
         LOGGER.error("HELIO DATA: %s", list(data))
+        LOGGER.warning("TEMP VALUES:")
+        for i in range(0, len(data), 2):
+            value = data[i] * 256 + data[i + 1]
+            if 25000 < value < 32000:
+                LOGGER.warning("OFFSET %s = %.1f°C", i // 2, value / 100 - 273.15)
 
         # device info
         self._deviceModel = deviceInfo["device_model_data"][data[17 * 2 + 1]]

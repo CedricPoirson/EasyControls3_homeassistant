@@ -1,12 +1,6 @@
-const CARD_VERSION = "0.2.0";
-
 class VentilationCard extends HTMLElement {
 
   setConfig(config) {
-    if (!config) {
-      throw new Error("Invalid configuration");
-    }
-
     this.config = config;
   }
 
@@ -17,121 +11,137 @@ class VentilationCard extends HTMLElement {
   }
 
 
-  getState(entityId, fallback = "--") {
-    if (!entityId || !this._hass) {
-      return fallback;
+  getValue(entity) {
+    if (!entity || !this._hass.states[entity]) {
+      return "--";
     }
 
-    const entity = this._hass.states[entityId];
-
-    if (!entity || entity.state === "unknown" || entity.state === "unavailable") {
-      return fallback;
-    }
-
-    return entity.state;
+    return this._hass.states[entity].state;
   }
 
 
-  getUnit(entityId, fallback = "") {
-    const entity = this._hass?.states[entityId];
+  getNumber(entity) {
+    const value = this.getValue(entity);
 
-    return entity?.attributes?.unit_of_measurement || fallback;
+    if (value === "--" || value === "unknown" || value === "unavailable") {
+      return null;
+    }
+
+    return Number(value);
   }
 
 
   getModeStyle(mode) {
 
-    switch (mode.toLowerCase()) {
+    const value = mode.toLowerCase();
 
-      case "heat recovery":
-        return {
-          color: "#ff9800",
-          icon: "mdi:fire",
-          label: "Heat recovery"
-        };
-
-
-      case "cooling recovery":
-        return {
-          color: "#2196f3",
-          icon: "mdi:snowflake",
-          label: "Cooling recovery"
-        };
-
-
-      case "bypass":
-        return {
-          color: "#4caf50",
-          icon: "mdi:swap-horizontal",
-          label: "Bypass"
-        };
-
-
-      default:
-        return {
-          color: "var(--primary-text-color)",
-          icon: "mdi:air-filter",
-          label: mode
-        };
+    if (value.includes("bypass")) {
+      return {
+        label: "Bypass actif",
+        class: "bypass",
+        icon: "↔"
+      };
     }
+
+    if (value.includes("cool")) {
+      return {
+        label: "Récupération fraîcheur",
+        class: "cooling",
+        icon: "❄"
+      };
+    }
+
+    return {
+      label: "Récupération chaleur",
+      class: "heating",
+      icon: "🔥"
+    };
   }
 
 
   render() {
 
-    if (!this._hass || !this.config) {
+    if (!this.config || !this._hass) {
       return;
     }
 
 
-    const mode = this.getState(
-      this.config.mode_entity,
-      "Unknown"
+    const mode = this.getValue(
+      this.config.mode_entity
+    );
+
+    const state = this.getModeStyle(mode);
+
+
+    const outside = this.getValue(
+      this.config.outside_temperature
+    );
+
+    const supply = this.getValue(
+      this.config.supply_temperature
+    );
+
+    const extract = this.getValue(
+      this.config.extract_temperature
+    );
+
+    const exhaust = this.getValue(
+      this.config.exhaust_temperature
     );
 
 
-    const style = this.getModeStyle(mode);
-
-
-    const outside =
-      this.getState(this.config.outside_temperature);
-
-    const extract =
-      this.getState(this.config.extract_temperature);
-
-    const supply =
-      this.getState(this.config.supply_temperature);
-
-    const exhaust =
-      this.getState(this.config.exhaust_temperature);
-
-
     const efficiency =
-      this.getState(this.config.efficiency_entity);
+      this.getValue(
+        this.config.efficiency_entity
+      );
 
 
     const fan =
-      this.getState(this.config.fan_entity);
+      this.getValue(
+        this.config.fan_entity
+      );
 
 
     const humidity =
-      this.getState(this.config.humidity_entity);
+      this.getValue(
+        this.config.humidity_entity
+      );
 
 
     const co2 =
-      this.getState(this.config.co2_entity);
+      this.getValue(
+        this.config.co2_entity
+      );
 
+
+    let efficiencyDisplay = efficiency;
+
+    if (
+      efficiency === "--" ||
+      efficiency === "unknown" ||
+      efficiency === "unavailable"
+    ) {
+      efficiencyDisplay =
+        state.class === "bypass"
+          ? "Échangeur contourné"
+          : "--";
+    }
 
 
     this.innerHTML = `
 
 <style>
 
+ha-card {
+  padding:0;
+}
+
 .card {
-  padding:20px;
-  border-radius:24px;
-  background:var(--ha-card-background);
-  box-shadow:var(--ha-card-box-shadow);
+  background: var(--ha-card-background);
+  color: var(--primary-text-color);
+  border-radius:20px;
+  overflow:hidden;
+  padding:18px;
 }
 
 
@@ -143,121 +153,131 @@ class VentilationCard extends HTMLElement {
 
 
 .title {
-  font-size:24px;
+  font-size:22px;
   font-weight:700;
 }
 
 
-.mode {
-  margin-top:10px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  color:${style.color};
+.status {
+  padding:8px 12px;
+  border-radius:20px;
+  font-size:14px;
   font-weight:600;
 }
 
 
+.heating {
+  background:rgba(255,140,0,0.18);
+  color:#d97706;
+}
+
+
+.cooling {
+  background:rgba(0,140,255,0.18);
+  color:#2563eb;
+}
+
+
+.bypass {
+  background:rgba(0,180,100,0.18);
+  color:#059669;
+}
+
+
 .exchange {
-  margin:25px auto;
   text-align:center;
+  margin:20px 0;
 }
 
 
 .exchange img {
 
-  width:170px;
-
-  transition:0.5s;
-
-}
-
-
-.bypass img {
-
-  opacity:0.5;
-  filter:grayscale(80%);
+  width:180px;
+  max-width:80%;
+  padding:12px;
+  border-radius:18px;
+  background:
+    var(--secondary-background-color);
 
 }
 
 
-
-.temperatures {
+.temps {
 
   display:grid;
-
   grid-template-columns:1fr 1fr;
-
-  gap:20px;
+  gap:12px;
 
 }
 
 
-.temperature {
+.item {
 
+  background:
+    var(--secondary-background-color);
+
+  border-radius:14px;
+  padding:12px;
   text-align:center;
 
 }
 
 
-
 .label {
 
-  color:var(--secondary-text-color);
-
   font-size:13px;
+  color:
+    var(--secondary-text-color);
 
 }
 
 
 .value {
 
-  font-size:28px;
-
+  font-size:22px;
   font-weight:700;
 
 }
 
 
+.footer {
 
-.stats {
-
- display:grid;
-
- grid-template-columns:repeat(3,1fr);
-
- gap:10px;
-
- margin-top:25px;
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
 
 }
 
 
-.stat {
+.metric {
 
- background:var(--secondary-background-color);
-
- border-radius:16px;
-
- padding:12px;
-
- text-align:center;
+  padding:14px;
+  border-radius:14px;
+  background:
+    var(--secondary-background-color);
 
 }
 
 
-.stat-value {
+.metric-title {
 
- font-size:22px;
-
- font-weight:700;
+  font-size:13px;
+  color:
+    var(--secondary-text-color);
 
 }
 
+
+.metric-value {
+
+  font-size:20px;
+  font-weight:700;
+
+}
 
 
 </style>
-
 
 
 <div class="card">
@@ -266,188 +286,133 @@ class VentilationCard extends HTMLElement {
 <div class="header">
 
 <div class="title">
-
 🌬️ ${this.config.name || "Ventilation"}
-
 </div>
 
 
-<div style="color:${style.color}">
-
-${style.label}
-
+<div class="status ${state.class}">
+${state.icon}
+${state.label}
 </div>
-
-
-</div>
-
-
-
-<div class="mode">
-
-<ha-icon icon="${style.icon}"></ha-icon>
-
-${style.label}
 
 </div>
 
 
 
+<div class="exchange">
 
-<div class="temperatures">
+<img src="/easycontrols3/images/heat-exchanger.png">
+
+</div>
 
 
-<div class="temperature">
 
+<div class="temps">
+
+
+<div class="item">
 <div class="label">
-Outside air
+Air extérieur
 </div>
-
 <div class="value">
-${outside}°
+${outside} °C
+</div>
 </div>
 
-</div>
 
-
-
-<div class="temperature">
-
+<div class="item">
 <div class="label">
-Extract air
+Air soufflé
 </div>
-
 <div class="value">
-${extract}°
+${supply} °C
 </div>
-
-</div>
-
-
-
 </div>
 
 
-
-
-<div class="exchange ${mode === "Bypass" ? "bypass" : ""}">
-
-
-<img 
-  src="/easycontrols3/images/heat-exchanger.png"
-  style="width:170px;"
-  onload="console.log('Heat exchanger image loaded')"
-  onerror="console.error('Heat exchanger image FAILED')"
->
-
-
-</div>
-
-
-
-
-
-<div class="temperatures">
-
-
-<div class="temperature">
-
+<div class="item">
 <div class="label">
-Supply air
+Air extrait
 </div>
-
 <div class="value">
-${supply}°
+${extract} °C
+</div>
 </div>
 
-</div>
 
-
-<div class="temperature">
-
+<div class="item">
 <div class="label">
-Exhaust air
+Air rejeté
 </div>
-
 <div class="value">
-${exhaust}°
+${exhaust} °C
+</div>
 </div>
 
-</div>
-
-
-</div>
-
-
-
-
-
-<div class="stats">
-
-
-<div class="stat">
-
-<div class="label">
-Efficiency
-</div>
-
-<div class="stat-value">
-${efficiency}%
-</div>
 
 </div>
 
 
 
-<div class="stat">
+<div class="footer">
 
-<div class="label">
-Fan
+
+<div class="metric">
+
+<div class="metric-title">
+Ventilation
 </div>
 
-<div class="stat-value">
-${fan}%
+<div class="metric-value">
+${fan} %
 </div>
 
 </div>
 
 
 
-<div class="stat">
+<div class="metric">
 
-<div class="label">
+<div class="metric-title">
+Rendement
+</div>
+
+<div class="metric-value">
+${efficiencyDisplay}
+</div>
+
+</div>
+
+
+
+<div class="metric">
+
+<div class="metric-title">
+Humidité
+</div>
+
+<div class="metric-value">
+${humidity} %
+</div>
+
+</div>
+
+
+
+<div class="metric">
+
+<div class="metric-title">
 CO₂
 </div>
 
-<div class="stat-value">
-${co2}
+<div class="metric-value">
+${co2} ppm
 </div>
 
 </div>
 
 
 </div>
-
-
-
-<div class="stats">
-
-
-<div class="stat">
-
-<div class="label">
-Humidity
-</div>
-
-<div class="stat-value">
-${humidity}%
-</div>
-
-</div>
-
-
-</div>
-
 
 
 </div>
@@ -456,25 +421,439 @@ ${humidity}%
 
   }
 
+}
 
-  getCardSize() {
-    return 5;
+
+customElements.define(
+  "ventilation-card",
+  VentilationCard
+);class VentilationCard extends HTMLElement {
+
+  setConfig(config) {
+    this.config = config;
+  }
+
+
+  set hass(hass) {
+    this._hass = hass;
+    this.render();
+  }
+
+
+  getValue(entity) {
+    if (!entity || !this._hass.states[entity]) {
+      return "--";
+    }
+
+    return this._hass.states[entity].state;
+  }
+
+
+  getNumber(entity) {
+    const value = this.getValue(entity);
+
+    if (value === "--" || value === "unknown" || value === "unavailable") {
+      return null;
+    }
+
+    return Number(value);
+  }
+
+
+  getModeStyle(mode) {
+
+    const value = mode.toLowerCase();
+
+    if (value.includes("bypass")) {
+      return {
+        label: "Bypass actif",
+        class: "bypass",
+        icon: "↔"
+      };
+    }
+
+    if (value.includes("cool")) {
+      return {
+        label: "Récupération fraîcheur",
+        class: "cooling",
+        icon: "❄"
+      };
+    }
+
+    return {
+      label: "Récupération chaleur",
+      class: "heating",
+      icon: "🔥"
+    };
+  }
+
+
+  render() {
+
+    if (!this.config || !this._hass) {
+      return;
+    }
+
+
+    const mode = this.getValue(
+      this.config.mode_entity
+    );
+
+    const state = this.getModeStyle(mode);
+
+
+    const outside = this.getValue(
+      this.config.outside_temperature
+    );
+
+    const supply = this.getValue(
+      this.config.supply_temperature
+    );
+
+    const extract = this.getValue(
+      this.config.extract_temperature
+    );
+
+    const exhaust = this.getValue(
+      this.config.exhaust_temperature
+    );
+
+
+    const efficiency =
+      this.getValue(
+        this.config.efficiency_entity
+      );
+
+
+    const fan =
+      this.getValue(
+        this.config.fan_entity
+      );
+
+
+    const humidity =
+      this.getValue(
+        this.config.humidity_entity
+      );
+
+
+    const co2 =
+      this.getValue(
+        this.config.co2_entity
+      );
+
+
+    let efficiencyDisplay = efficiency;
+
+    if (
+      efficiency === "--" ||
+      efficiency === "unknown" ||
+      efficiency === "unavailable"
+    ) {
+      efficiencyDisplay =
+        state.class === "bypass"
+          ? "Échangeur contourné"
+          : "--";
+    }
+
+
+    this.innerHTML = `
+
+<style>
+
+ha-card {
+  padding:0;
+}
+
+.card {
+  background: var(--ha-card-background);
+  color: var(--primary-text-color);
+  border-radius:20px;
+  overflow:hidden;
+  padding:18px;
+}
+
+
+.header {
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+
+.title {
+  font-size:22px;
+  font-weight:700;
+}
+
+
+.status {
+  padding:8px 12px;
+  border-radius:20px;
+  font-size:14px;
+  font-weight:600;
+}
+
+
+.heating {
+  background:rgba(255,140,0,0.18);
+  color:#d97706;
+}
+
+
+.cooling {
+  background:rgba(0,140,255,0.18);
+  color:#2563eb;
+}
+
+
+.bypass {
+  background:rgba(0,180,100,0.18);
+  color:#059669;
+}
+
+
+.exchange {
+  text-align:center;
+  margin:20px 0;
+}
+
+
+.exchange img {
+
+  width:180px;
+  max-width:80%;
+  padding:12px;
+  border-radius:18px;
+  background:
+    var(--secondary-background-color);
+
+}
+
+
+.temps {
+
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+
+}
+
+
+.item {
+
+  background:
+    var(--secondary-background-color);
+
+  border-radius:14px;
+  padding:12px;
+  text-align:center;
+
+}
+
+
+.label {
+
+  font-size:13px;
+  color:
+    var(--secondary-text-color);
+
+}
+
+
+.value {
+
+  font-size:22px;
+  font-weight:700;
+
+}
+
+
+.footer {
+
+  margin-top:18px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:12px;
+
+}
+
+
+.metric {
+
+  padding:14px;
+  border-radius:14px;
+  background:
+    var(--secondary-background-color);
+
+}
+
+
+.metric-title {
+
+  font-size:13px;
+  color:
+    var(--secondary-text-color);
+
+}
+
+
+.metric-value {
+
+  font-size:20px;
+  font-weight:700;
+
+}
+
+
+</style>
+
+
+<div class="card">
+
+
+<div class="header">
+
+<div class="title">
+🌬️ ${this.config.name || "Ventilation"}
+</div>
+
+
+<div class="status ${state.class}">
+${state.icon}
+${state.label}
+</div>
+
+</div>
+
+
+
+<div class="exchange">
+
+<img src="/easycontrols3/images/heat-exchanger.png">
+
+</div>
+
+
+
+<div class="temps">
+
+
+<div class="item">
+<div class="label">
+Air extérieur
+</div>
+<div class="value">
+${outside} °C
+</div>
+</div>
+
+
+<div class="item">
+<div class="label">
+Air soufflé
+</div>
+<div class="value">
+${supply} °C
+</div>
+</div>
+
+
+<div class="item">
+<div class="label">
+Air extrait
+</div>
+<div class="value">
+${extract} °C
+</div>
+</div>
+
+
+<div class="item">
+<div class="label">
+Air rejeté
+</div>
+<div class="value">
+${exhaust} °C
+</div>
+</div>
+
+
+</div>
+
+
+
+<div class="footer">
+
+
+<div class="metric">
+
+<div class="metric-title">
+Ventilation
+</div>
+
+<div class="metric-value">
+${fan} %
+</div>
+
+</div>
+
+
+
+<div class="metric">
+
+<div class="metric-title">
+Rendement
+</div>
+
+<div class="metric-value">
+${efficiencyDisplay}
+</div>
+
+</div>
+
+
+
+<div class="metric">
+
+<div class="metric-title">
+Humidité
+</div>
+
+<div class="metric-value">
+${humidity} %
+</div>
+
+</div>
+
+
+
+<div class="metric">
+
+<div class="metric-title">
+CO₂
+</div>
+
+<div class="metric-value">
+${co2} ppm
+</div>
+
+</div>
+
+
+</div>
+
+
+</div>
+
+`;
+
   }
 
 }
 
 
-
-if (!customElements.get("ventilation-card")) {
-
-  customElements.define(
-    "ventilation-card",
-    VentilationCard
-  );
-
-}
-
-
-console.info(
-  `Ventilation Card v${CARD_VERSION} loaded`
+customElements.define(
+  "ventilation-card",
+  VentilationCard
 );

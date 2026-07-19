@@ -115,10 +115,10 @@ class EasyControls3Instance:
         self._IndoorTemperature = dataToCelsius(data, 65)
         self._ExhaustTemperature = dataToCelsius(data, 66)
 
-        # heat exchanger state
-        # 0 = heat recovery
-        # 1 = cooling recovery
-        # 2 = bypass
+        # Helios KWL:
+        # data[229] = 2 -> bypass active
+        # data[229] = 1 + data[509] = 0 -> cooling recovery
+        # otherwise -> heat recovery
 
         if data[229] == 2:
             self._CellState = 2  # bypass
@@ -189,7 +189,10 @@ class EasyControls3Instance:
             "509": data[509],
         }
 
-        LOGGER.warning("HELIO BYPASS DEBUG: %s", self._CellStateRaw)
+        LOGGER.debug(
+            "HELIO CELL STATE RAW: %s",
+            self._CellStateRaw,
+        )
 
         # humidity
         self._AirRH = data[74 * 2 + 1]
